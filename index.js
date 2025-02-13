@@ -1,51 +1,35 @@
-var player1;
-var player2;
+import {Player} from "./Player.js";
+import {Place} from "./Place.js";
 
-player1 = {
-    "name"  : "Arav",
-    "health": 60,
-    "place" : "Dallas",
-    "items" : "backpack"
-};
+var player1 = new Player("Arav",60,["backpack"]);
 
-player2 = {
-    "name" : "Battle",
-    "health": 80,
-    "place" : "Dallas",
-    "items" : "backpack"
-};
+var player2 = new Player("Battle",80,["lamp"]);
 
-console.log(displayPlayerInfo(player1));
+
+var library = new Place("Library","Place full of dust and books");
+var kitchen = new Place("Kitchen","Kitchen");
+var dungeon = new Place("Dungeon","Dungeon");
+library.items.push("Secret Key");
+library.items.push("Runnning Shoes");
+
+library.addExit("north",kitchen);
+library.addExit("south",dungeon);
+// console.log(library.getPlaceInfo());
+
+player1.place = library;
+player2.place = library;
+// console.log(player1.displayPlayerInfo());
 reduceHealth(player1, 20);
-console.log("After Damage: " + displayPlayerInfo(player1));
+// console.log("After Damage: "+ makePretty.newLine()+ player1.displayPlayerInfo());
+console.log(player2.displayPlayerInfo());
+player2.items.push("Boots");
+// console.log(player2.displayPlayerInfo());
 
-function getPlayerName(player) {
-    return player.name;
-}
 
-function getPlayerHealth(player) {
-    return "\n"+ player.name + " has health " + player.health;
-}
 
-function getPlayerLocation(player) {
-    return "\n"+ player.name + " is in " + player.place;
-}
 
-function getBorder() {
-    return "\n ----------------------";
-}
 
-function displayPlayerInfo(player) {
-    var playerInfo;
 
-    playerInfo = getPlayerName(player);
-    playerInfo += getBorder();
-    playerInfo += getPlayerHealth(player);
-    playerInfo += getBorder();
-    playerInfo += getPlayerLocation(player);
-    playerInfo += getBorder();
-    return playerInfo;
-}
 
 function reduceHealth(player, health){
     player.health = player.health - health;
