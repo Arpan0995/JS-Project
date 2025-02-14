@@ -39,7 +39,7 @@ var makePretty ={
 
 var Player = function (name, health) {
     var newLine = makePretty.newLine();
-    var place = {};
+    var place = null;
     var items = [];
 
     var getPlayerName = function () {
@@ -84,7 +84,6 @@ var Player = function (name, health) {
 
     this.setPlayerLocation = function (location){
         place = location;
-        return "";
     }
 
 
@@ -146,6 +145,7 @@ let Place = function (title, description) {
     }
 
     this.getExit = function (direction){
+        console.log(exits);
         return exits[direction];
     }
 
@@ -161,7 +161,7 @@ function render(){
 
 function go(direction) {
     var place = player.getPlayerLocation();
-    var destination = place.getExit(place);
+    var destination = place.getExit(direction);
     player.setPlayerLocation(destination)
     render();
     return "";
@@ -179,13 +179,13 @@ function get(){
 
 
 let library = new Place("Library","Place full of dust and books");
-let kitchen = new Place("Kitchen","Kitchen");
 let dungeon = new Place("Dungeon","Dungeon");
+
 library.addItem("Secret Key");
 dungeon.addItem("Runnning Shoes");
 
-library.addExit("north",kitchen);
-dungeon.addExit("south",dungeon);
+library.addExit("north",dungeon);
+dungeon.addExit("south",library);
 
 
 let player  = new Player("Rocco",80);
@@ -193,3 +193,5 @@ player.setPlayerItems("Sword");
 player.setPlayerLocation(dungeon);
 
 render();
+go("south");
+ get();
