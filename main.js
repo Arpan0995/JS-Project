@@ -1,48 +1,176 @@
-import {Player} from "./Player.js";
-import {Place} from "./Place.js";
-import {Helper} from "./Helper.js";
+
+var makePretty ={
+    blank: function () {
+        return "";
+    },
+
+    newLine: function () {
+        return "\n";
+    },
+
+    line: function (length, character) {
+        var longString = "****************************************";
+        longString += "----------------------------------------";
+        longString += "========================================";
+        longString += "++++++++++++++++++++++++++++++++++++++++";
+        longString += "                                        ";
+
+        length = Math.max(0, length);
+        length = Math.min(40, length);
+        return longString.substr(longString.indexOf(character), length);
+    },
+
+    wrap : function (text, length, character) {
+        var padLength = length - text.length - 3;
+        var wrapText = character + " " + text;
+        wrapText += makePretty.line(padLength, " ");
+        wrapText += character;
+        return wrapText;
+    },
+
+    box: function (text, length, character) {
+        var boxText = makePretty.newLine();
+        boxText += makePretty.line(length, character) + makePretty.newLine();
+        boxText += makePretty.wrap(text, length, character) + makePretty.newLine();
+        boxText += makePretty.line(length, character) + makePretty.newLine();
+        return boxText;
+    }
+}
+
+var Player = function (name, health) {
+    var newLine = makePretty.newLine();
+    var place = {};
+    var items = [];
+
+    var getPlayerName = function () {
+        return name;
+    };
+
+    var getPlayerHealth = function () {
+        return health;
+    }
+
+    this.getPlayerLocation = function () {
+        return place;
+    }
 
 
-var player1 = new Player("Arav",60,["backpack"]);
 
-var player2 = new Player("Battle",80,["lamp"]);
+    var getItems = function () {
+        var itemsList = "Items are: " + newLine;
+        items.forEach(function(item) {
+            itemsList +=  "  -" + item + newLine;
+        })
+        return itemsList;
+    }
+
+    this.setPlayerItems = function (item) {
+        items.push(item);
+    }
+
+    var displayPlayerInfo = function () {
+        var info = makePretty.box(getPlayerName(), 40, "*");
+        info += "Health: " + getPlayerHealth() ;
+        info += newLine;
+        info += getItems()
+        info += makePretty.line(40,"*");
+        info += newLine;
+        return info;
+    }
+
+    this.printPlayerInfo = function () {
+        console.log(displayPlayerInfo());
+    }
+
+    this.setPlayerLocation = function (location){
+        place = location;
+        return "";
+    }
 
 
-var library = new Place("Library","Place full of dust and books");
-var kitchen = new Place("Kitchen","Kitchen");
-var dungeon = new Place("Dungeon","Dungeon");
-library.items.push("Secret Key");
-library.items.push("Runnning Shoes");
+}
 
-library.addExit("north",kitchen);
-library.addExit("south",dungeon);
-// console.log(library.getPlaceInfo());
+let Place = function (title, description) {
+    let newLine = makePretty.newLine();
+    let items = [];
+    let exits = {};
 
-player1.place = library;
-player2.place = library;
-// console.log(player1.displayPlayerInfo());
-reduceHealth(player1, 20);
-// console.log("After Damage: "+ makePretty.newLine()+ player1.displayPlayerInfo());
-console.log(player2.displayPlayerInfo());
-player2.items.push("Boots");
-// console.log(player2.displayPlayerInfo());
+    let getPlaceInfo = function () {
+        let placeInfo = getTitleInfo();
+        placeInfo += description;
+        placeInfo += newLine;
+        placeInfo += newLine;
+        placeInfo += getPlaceItems();
+        placeInfo += getExits();
+        placeInfo += makePretty.line(40, "=") + newLine;
+        return placeInfo;
 
+    }
+    this.printPlaceInfo = function () {
+        console.log(getPlaceInfo());
+    }
+
+    let getTitleInfo = function () {
+        return makePretty.box(title, title.length + 4, "=");
+    }
+
+    let getDestination = function (direction){
+        return exits[direction]
+    }
+
+    this.addItem = function (item) {
+        items.push(item);
+    }
+
+    this.addExit = function (direction, place){
+        exits[direction] = place;
+    }
+
+    let getExits = function () {
+        let exitsList = "Exits are:" + newLine;
+        Object.keys(exits).forEach(function(key){
+            exitsList += "  -" + key + newLine  ;
+        });
+        return exitsList;
+    }
+    let getPlaceItems = function () {
+        let ItemsInfo = "Items in this place are: " + newLine;
+        items.forEach(function (item){
+            ItemsInfo += "   -" + item + newLine ;
+        });
+        return ItemsInfo;
+    }
+
+    this.getLast = function () {
+        return items.pop();
+    }
+
+    this.getExit = function (direction){
+        return exits[direction];
+    }
+
+
+
+}
 
 function render(){
     console.clear();
-    console.log(player1.getPlayerLocation());
-    player1.displayPlayerInfo();
+    player.getPlayerLocation().printPlaceInfo();
+    player.printPlayerInfo();
 }
 
 function go(direction) {
-    player1.place = player1.place.exits[direction];
+    var place = player.getPlayerLocation();
+    var destination = place.getExit(place);
+    player.setPlayerLocation(destination)
     render();
     return "";
 }
 
 function get(){
-    var item = player1.place.items.pop();
-    player1.items.push(item);
+    var place = player.getPlayerLocation();
+    var item = place.getLast();
+    player.setPlayerItems(item);
     render();
     return "";
 }
@@ -50,9 +178,18 @@ function get(){
 
 
 
+let library = new Place("Library","Place full of dust and books");
+let kitchen = new Place("Kitchen","Kitchen");
+let dungeon = new Place("Dungeon","Dungeon");
+library.addItem("Secret Key");
+dungeon.addItem("Runnning Shoes");
+
+library.addExit("north",kitchen);
+dungeon.addExit("south",dungeon);
 
 
-function reduceHealth(player, health){
-    player.health = player.health - health;
+let player  = new Player("Rocco",80);
+player.setPlayerItems("Sword");
+player.setPlayerLocation(dungeon);
 
-}
+render();
