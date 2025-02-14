@@ -145,7 +145,9 @@ let Place = function (title, description) {
     }
 
     this.getExit = function (direction){
-        console.log(exits);
+        if(exits[direction] == null){
+            throw new Error("Exit " + direction + " not found.");
+        }
         return exits[direction];
     }
 
@@ -193,5 +195,3 @@ player.setPlayerItems("Sword");
 player.setPlayerLocation(dungeon);
 
 render();
-go("south");
- get();
